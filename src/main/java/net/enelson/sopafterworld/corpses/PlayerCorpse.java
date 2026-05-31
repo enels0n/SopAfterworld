@@ -35,7 +35,7 @@ public class PlayerCorpse {
 		this.createTime = System.currentTimeMillis()/1000;
 		
 		this.playerName = player.getName();
-		this.inv = Bukkit.createInventory(null, 45, Utils.color("&7РўСЂСѓРї &f" + player.getName()));
+		this.inv = Bukkit.createInventory(null, 45, Utils.color("&7Труп &f" + player.getName()));
 		this.inv.setContents(player.getInventory().getContents());
 		
 		this.location = SopAfterworld.playerManager.getPlayerData(player).getLastSafeLocation();
@@ -52,7 +52,7 @@ public class PlayerCorpse {
 		this.playerName = playerName;
 		this.location = location;
 		
-		this.inv = Bukkit.createInventory(null, 45, Utils.color("&7РўСЂСѓРї &f" + this.playerName));
+		this.inv = Bukkit.createInventory(null, 45, Utils.color("&7Труп &f" + this.playerName));
 		this.inv.setContents(inventory);
 		
 		this.createNPC();
@@ -202,7 +202,7 @@ public class PlayerCorpse {
 	
 	private void createNPC() {
 		this.npc = CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, this.playerName, this.location);
-		String corpseName = Utils.color("&8РўСЂСѓРї &f" + this.playerName);
+		String corpseName = Utils.color("&8Труп &f" + this.playerName);
 		this.npc.setName(corpseName);
 		
 		Bukkit.getScheduler().runTaskLater(SopAfterworld.plugin, () -> {

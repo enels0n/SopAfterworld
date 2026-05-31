@@ -17,7 +17,7 @@ public class AStand {
 		this.corpse = corpse;
 		
 		this.stand = (ArmorStand) player.getWorld().spawn(player.getLocation().clone().add(0,0.1,0), ArmorStand.class);
-		this.stand.setCustomName(Utils.color("*&eРћСЃРјР°С‚СЂРёРІР°РµС‚ С‚СЂСѓРї " + corpse.getPlayerName() + "&f*"));
+		this.stand.setCustomName(Utils.color("*&eОсматривает труп " + corpse.getPlayerName() + "&f*"));
 		this.stand.setCustomNameVisible(true);
 		this.stand.setGravity(false);
 		this.stand.setVisible(false);
