@@ -26,8 +26,8 @@ public class AfterworldChunkGenerator extends ChunkGenerator {
 		refreshNoise(world.getSeed());
 
 		ChunkData data = createChunkData(world);
-		int minY = Math.max(0, world.getMinHeight());
-		int maxY = world.getMaxHeight() - 1;
+		int minY = 0;
+		int maxY = 255;
 		int lavaLevel = clamp(SopAfterworld.generatorLavaLevel, minY + 4, maxY - 8);
 
 		for (int localX = 0; localX < 16; localX++) {

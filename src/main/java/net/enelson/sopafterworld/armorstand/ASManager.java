@@ -22,7 +22,7 @@ public class ASManager {
 		this.task = Bukkit.getScheduler().runTaskTimer(SopAfterworld.plugin, () -> {
 			for(Iterator<AStand> it = this.stands.iterator(); it.hasNext();) {
 				AStand stand = it.next();
-				if(stand.getCorpse().getNPC() == null ||
+				if(stand.getCorpse().getCorpseEntityUuid() == null ||
 						!stand.getCorpse().getInv().getViewers().contains((HumanEntity)stand.getPlayer()) ||
 						!stand.getPlayer().isOnline()) {
 					stand.destroy();

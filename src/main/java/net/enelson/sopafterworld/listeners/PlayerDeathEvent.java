@@ -2,6 +2,7 @@ package net.enelson.sopafterworld.listeners;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 
@@ -10,7 +11,7 @@ import net.enelson.sopafterworld.data.PlayerData;
 import net.enelson.sopafterworld.util.Utils;
 
 public class PlayerDeathEvent implements Listener {
-	@EventHandler
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void setPlayerDead(org.bukkit.event.entity.PlayerDeathEvent e) {
 		Player player = (Player) e.getEntity();
 		
@@ -30,7 +31,7 @@ public class PlayerDeathEvent implements Listener {
 		pd.addDeath();
 		pd.setPortal(Utils.searchPortalPoint());
 		pd.setDead(true);
-		SopAfterworld.corpseManager.createCorpse(player);
+		SopAfterworld.corpseManager.createCorpse(player, e.getDrops());
 		e.getDrops().clear();
 	}
 }

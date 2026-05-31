@@ -15,7 +15,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 
-import net.citizensnpcs.api.npc.NPC;
 import net.enelson.sopafterworld.SopAfterworld;
 
 public class CorpseManager {
@@ -66,17 +65,21 @@ public class CorpseManager {
 			this.corpses.add(corpse);
 		}
 	}
+
+	public void createCorpse(Player player, List<ItemStack> drops) {
+		if (drops == null || drops.isEmpty()) {
+			return;
+		}
+		PlayerCorpse corpse = new PlayerCorpse(player, drops);
+		this.corpses.add(corpse);
+	}
 	
 	public PlayerCorpse getCorpse(Player player) {
 		return this.corpses.stream().filter(c -> c.getPlayerName().equals(player.getName())).findFirst().orElse(null);
 	}
 	
 	public PlayerCorpse getCorpse(Entity entity) {
-		return this.corpses.stream().filter(c -> c.getNPC() != null && c.getNPC().getEntity() != null && c.getNPC().getEntity().equals(entity)).findFirst().orElse(null);
-	}
-	
-	public PlayerCorpse getCorpse(NPC npc) {
-		return this.corpses.stream().filter(c -> c.getNPC().equals(npc)).findFirst().orElse(null);
+		return this.corpses.stream().filter(c -> c.matchesEntity(entity)).findFirst().orElse(null);
 	}
 	
 	public PlayerCorpse getCorpse(Inventory inv) {
@@ -91,16 +94,8 @@ public class CorpseManager {
 		}
 	}
 	
-	public void removeCorpse(NPC npc) {
-		PlayerCorpse playerCorpse = this.getCorpse(npc);
-		if(playerCorpse != null) {
-			playerCorpse.removeCorpse();
-			this.corpses.remove(playerCorpse);
-		}
-	}
-	
 	public void deInit() {
-		this.corpses.forEach(c -> { c.save(); c.closeInventories(); c.getNPC().destroy(); });
+		this.corpses.forEach(c -> { c.save(); c.closeInventories(); c.removeCorpse(); });
 		this.taskRemover.cancel();
 	}
 }

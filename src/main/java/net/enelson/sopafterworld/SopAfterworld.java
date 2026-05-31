@@ -174,7 +174,7 @@ public class SopAfterworld extends org.bukkit.plugin.java.JavaPlugin implements 
 		World createdWorld = Bukkit.createWorld(creator);
 		if (createdWorld != null) {
 			Location spawn = createdWorld.getHighestBlockAt(0, 0).getLocation().add(0.5D, 1.0D, 0.5D);
-			createdWorld.setSpawnLocation(spawn);
+			createdWorld.setSpawnLocation(spawn.getBlockX(), spawn.getBlockY(), spawn.getBlockZ());
 		}
 	}
 

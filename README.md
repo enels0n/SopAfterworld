@@ -8,23 +8,24 @@ SopAfterworld is a Bukkit/Spigot plugin that adds an afterworld-style death flow
 - Built-in custom afterworld terrain generator
 - Hilly hell-style landscape with lava lowlands
 - Generator settings for seed, height, lava level, and terrain scales
-- Corpse spawning through Citizens
+- Corpse spawning through SopLib's shared corpse service
 - Recoverable player inventory from corpses
 - Requirement checks through PlaceholderAPI and permissions
 - Shared text and item helpers through SopLib
+- Built-in afterworld regeneration command with confirmation
 
 ## Requirements
 
 - Java 8+
-- Spigot/Paper 1.20.4
+- Spigot/Paper 1.16.5
 - SopLib
 - PlaceholderAPI
-- Citizens
 
 ## Commands
 
 - `/sopafterworld`
 - `/sopafterworld reload`
+- `/sopafterworld regenerate`
 - `/portal`
 
 ## Notes
@@ -32,4 +33,4 @@ SopAfterworld is a Bukkit/Spigot plugin that adds an afterworld-style death flow
 - SopLib is required as a separate plugin dependency.
 - The plugin keeps old `totalafterworld` compatibility as an alias.
 - The custom generator only affects newly generated chunks.
-- If you previously used a pre-generated `afterworld`, delete or rename that world folder before first startup to fully regenerate it with the new terrain.
+- Use `/sopafterworld regenerate` twice within 15 seconds to rebuild the afterworld with the current generator settings.

@@ -11,7 +11,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import me.clip.placeholderapi.PlaceholderAPI;
 import net.enelson.sopafterworld.SopAfterworld;
 import net.enelson.sopafterworld.util.Serializer;
 import net.enelson.sopafterworld.util.Utils;
@@ -121,7 +120,7 @@ public class PlayerData {
 	}
 	
 	public Location getAfterworldLocation() {
-		return Utils.getLocationInCircle(this.portal[0], Utils.getRadius(this.deathLevel()));
+		return Utils.getLocationInCircle(this.portal[0], Utils.getRadius(this.deaths));
 	}
 	
 	public Long getLastOnline() {
@@ -190,10 +189,6 @@ public class PlayerData {
 	public void setLastOnline() {
 		this.lastOnline = System.currentTimeMillis() / 1000;
 		this.saveConfigs();
-	}
-	
-	private int deathLevel() {
-		return Integer.parseInt(PlaceholderAPI.setPlaceholders(player, "%clv_player_level%"));
 	}
 	
 	private Location[] createPortal(Location location) {
