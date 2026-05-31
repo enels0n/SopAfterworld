@@ -1,5 +1,8 @@
 messages:
   reload: "&8[&3&lSopAfterworld&8] &aКонфиг перезагружен."
+  regenerate-confirm: "&eПовтори /sopafterworld regenerate в течение 15 секунд, чтобы пересоздать afterworld."
+  regenerate-success: "&aМир afterworld был пересоздан."
+  regenerate-failed: "&cНе удалось пересоздать afterworld."
   args-error: "&cВведено неверное количество аргументов."
   only-player: "&cКоманда может быть выполнена только игроком."
   setpoint: "&aТочка установлена."
@@ -25,6 +28,18 @@ portal:
   minZ: -10000
   maxX: 10000
   maxZ: 10000
+
+world-generator:
+  enabled: true
+  seed: ""
+  base-height: 63
+  height-variation: 6
+  detail-height: 5
+  lava-level: 67
+  bedrock-layers: 3
+  primary-scale: 0.0105
+  detail-scale: 0.040
+  ridge-scale: 0.026
 
 spawns: # min-death: radius
   0: 50
