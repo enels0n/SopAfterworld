@@ -32,7 +32,7 @@ public class PlayerCorpse {
 	PlayerCorpse(Player player) {
 		this.saved = true;
 		this.uuid = player.getUniqueId().toString();
-		this.createTime = System.currentTimeMillis()/1000;
+		this.createTime = System.currentTimeMillis() / 1000;
 		
 		this.playerName = player.getName();
 		this.inv = Bukkit.createInventory(null, 45, Utils.color("&7Труп &f" + player.getName()));
@@ -45,7 +45,6 @@ public class PlayerCorpse {
 		this.save();
 	}
 	
-
 	PlayerCorpse(String uuid, Long createTime, ItemStack[] inventory, String playerName, Location location) {
 		this.uuid = uuid;
 		this.createTime = createTime;
@@ -90,20 +89,21 @@ public class PlayerCorpse {
 		String filePath = SopAfterworld.plugin.getDataFolder().getAbsolutePath() + File.separator + "corpses/"
 				+ this.uuid + ".yml";
 		File file = new File(filePath);
-		if (file.exists())
+		if (file.exists()) {
 			file.delete();
+		}
 	}
 	
 	public void dropItems() {
-		for(ItemStack item : this.inv.getContents()) {
-			if(item!=null)
+		for (ItemStack item : this.inv.getContents()) {
+			if (item != null) {
 				this.npc.getStoredLocation().getWorld().dropItem(this.npc.getStoredLocation(), item.clone());
+			}
 		}
 		this.inv.clear();
 	}
 
 	public void returnItems(Player player) {
-		
 		this.closeInventories();
 		
 		ItemStack[] inventory = this.inv.getContents();
@@ -113,29 +113,30 @@ public class PlayerCorpse {
 		ItemStack boots = null;
 		ItemStack offHand = null;
 		
-		if(inventory[39]!=null) {
+		if (inventory[39] != null) {
 			helmet = inventory[39].clone();
 			inventory[39] = null;
 		}
-		if(inventory[38]!=null) {
+		if (inventory[38] != null) {
 			chestplate = inventory[38].clone();
 			inventory[38] = null;
 		}
-		if(inventory[37]!=null) {
+		if (inventory[37] != null) {
 			leggings = inventory[37].clone();
 			inventory[37] = null;
 		}
-		if(inventory[36]!=null) {
+		if (inventory[36] != null) {
 			boots = inventory[36].clone();
 			inventory[36] = null;
 		}
-		if(inventory[40]!=null) {
+		if (inventory[40] != null) {
 			offHand = inventory[40].clone();
 			inventory[40] = null;
 		}
-		for(int y = 41; y<45;) {
-			if(inventory[y]!=null)
+		for (int y = 41; y < 45;) {
+			if (inventory[y] != null) {
 				player.getWorld().dropItem(player.getLocation(), inventory[y].clone());
+			}
 			inventory[y++] = null;
 		}
 		
@@ -164,15 +165,14 @@ public class PlayerCorpse {
 		}
 
 		FileConfiguration config = new YamlConfiguration();
-		if(this.npc == null) {
-			for(ItemStack item : inv.getContents()) {
+		if (this.npc == null) {
+			for (ItemStack item : inv.getContents()) {
 				location.getWorld().dropItem(location, item);
 			}
 			config.set("", null);
 			SopAfterworld.corpseManager.removeCorpse(this.npc);
-		}
-		else {
-			if(this.npc.getEntity() == null) {
+		} else {
+			if (this.npc.getEntity() == null) {
 				this.npc.spawn(location);
 			}
 			config.set("createTime", createTime);
@@ -194,7 +194,7 @@ public class PlayerCorpse {
 	
 	public void closeInventories() {
 		for (int i = this.inv.getViewers().size() - 1; i >= 0; --i) {
-			Player p = (Player)this.inv.getViewers().get(i);
+			Player p = (Player) this.inv.getViewers().get(i);
 			p.closeInventory();
 			SopAfterworld.am.removeAS(p);
 		}
@@ -209,18 +209,5 @@ public class PlayerCorpse {
 			this.npc.getOrAddTrait(SkinTrait.class).setSkinName(playerName);
 			this.npc.getOrAddTrait(SitTrait.class).setSitting(location);
 		}, 20);
-		//this.npc.setSkin(player);
-		//this.npc.setText(ChatColor.translateAlternateColorCodes('&', "&7РўСЂСѓРї &f"+this.playerName));
-		//this.npc.setTextAlignment(new Vector(0,0.3,0));
-		//this.npc.setPose(NPC.Pose.SLEEPING);
-		//this.npc.setAutoCreate(true);
-		//this.npc.setAutoShow(true);
-
-		//this.npc.forceUpdateText();
-		//Bukkit.getScheduler().runTaskLater(SopAfterworld.plugin, () -> {
-		//	this.npc.setHideDistance(10);
-		//	this.npc.update();
-		//}, 10);
 	}
 }
-

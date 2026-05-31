@@ -3,7 +3,6 @@ package net.enelson.sopafterworld.data;
 import java.io.File;
 import java.io.IOException;
 
-
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -45,7 +44,7 @@ public class PlayerData {
 				this.file.createNewFile();
 				FileConfiguration cfg = new YamlConfiguration();
 				cfg.set("name", player.getName());
-				cfg.set("first-join", System.currentTimeMillis()/1000);
+				cfg.set("first-join", System.currentTimeMillis() / 1000);
 				cfg.set("death-count", 0);
 				cfg.set("last-decrease", 0);
 				cfg.set("lastOnline", 0);
@@ -58,9 +57,9 @@ public class PlayerData {
 		}
 		
 		this.playerConfig = YamlConfiguration.loadConfiguration(this.file);
-		if(this.playerConfig.getList("lastSafeLocations") != null) {
+		if (this.playerConfig.getList("lastSafeLocations") != null) {
 	        for (Object l : this.playerConfig.getList("lastSafeLocations")) {
-	        	lastSafeLocations.add((Location)l); 
+	        	lastSafeLocations.add((Location) l);
 	        }
 		}
 		this.dead = this.playerConfig.getBoolean("isDead");
@@ -69,7 +68,7 @@ public class PlayerData {
 		this.lastOnline = 0L;
 		this.portal = Serializer.getDeserializedLocation(this.playerConfig.getStringList("portal"));
 		this.guideCloseMessageSended = false;
-		this.lastRebirth = 0l;
+		this.lastRebirth = 0L;
 	}
 	
 	public Location[] getPortalLocations() {
@@ -89,34 +88,18 @@ public class PlayerData {
 	}
 	
 	public Location getLastSafeLocation() {
-	    //#РїРѕРѕС‡РµСЂРµРґРЅРѕ РїСЂРѕРІРµСЂРёС‚СЊ Р±Р»РѕРєРё РёР· СЃРїРёСЃРєР°
-	    //РїРѕСЃР»РµРґРЅРёС… 5 Р±РµР·РѕРїР°СЃРЅС‹С… РїРѕР·РёС†РёР№,
-	    //РµСЃР»Рё РІСЃРµ РїРѕР·РёС†РёРё Р±РѕР»СЊС€Рµ РЅРµ Р±РµР·РѕРїР°СЃРЅС‹,
-	    //С‚Рѕ РѕС‚РїСЂР°РІР»СЏРµРј null.
-	    //Р­С‚Рѕ РІ РёС‚РѕРіРµ РёРіСЂРѕРєР° РѕС‚РїСЂР°РІРёС‚
-	    //Рє РєСЂРѕРІР°С‚Рё РёР»Рё РЅР° СЃРїР°РІРЅ
-	    for(Location l : this.lastSafeLocations.get()) {
-	    	if(l == null)
+		for (Location l : this.lastSafeLocations.get()) {
+	    	if (l == null) {
 	    		continue;
-			if(!l.clone().add(0, -1, 0).getBlock().getType().isSolid())
+	    	}
+			if (!l.clone().add(0, -1, 0).getBlock().getType().isSolid()) {
 				continue;
-			if(l.getWorld().getBlockAt(l).getType() == Material.LAVA)
+			}
+			if (l.getWorld().getBlockAt(l).getType() == Material.LAVA) {
 				continue;
+			}
 			
 			return l;
-	    	/**for(int i  = 0; i<5; i++) {
-		    	for(int o  = 0; o<5; i++) {
-			    	for(int p  = 0; p<5; i++) {
-			    		
-			    	}
-		    	}
-	    	}**/
-	        //if(l.isSafety) {
-	        //    return l;
-	        //}
-	        //else if(l.aroundIsSafety) {
-	        //    return l.aroundSafetyBlock;
-	        //}
 	    }
 		return Serializer.getDeserializedLocation(SopAfterworld.config.getString("default-reincarnation-point"));
 	}
@@ -138,7 +121,7 @@ public class PlayerData {
 	}
 	
 	public Location getAfterworldLocation() {
-		return Utils.getLocationInCircle(this.portal[0],Utils.getRadius(this.deathLevel()));
+		return Utils.getLocationInCircle(this.portal[0], Utils.getRadius(this.deathLevel()));
 	}
 	
 	public Long getLastOnline() {
@@ -160,21 +143,22 @@ public class PlayerData {
 	
 	public void addDeath() {
 		this.deaths += 1;
-		this.lastDecrease = System.currentTimeMillis()/1000;
+		this.lastDecrease = System.currentTimeMillis() / 1000;
 		this.saveConfigs();
 	}
 	
 	public void removeDeath() {
 		this.deaths -= 1;
-		this.lastDecrease = System.currentTimeMillis()/1000;
+		this.lastDecrease = System.currentTimeMillis() / 1000;
 		this.saveConfigs();
 	}
 	
 	public void setDead(Boolean dead) {
 		this.dead = dead;
 		this.guideCloseMessageSended = false;
-		if(this.br != null)
+		if (this.br != null) {
 			this.br.cancel();
+		}
 		this.saveConfigs();
 	}
 	
@@ -204,7 +188,7 @@ public class PlayerData {
 	}
 	
 	public void setLastOnline() {
-		this.lastOnline = System.currentTimeMillis()/1000;
+		this.lastOnline = System.currentTimeMillis() / 1000;
 		this.saveConfigs();
 	}
 	
@@ -214,10 +198,10 @@ public class PlayerData {
 	
 	private Location[] createPortal(Location location) {
 		Location locs[] = new Location[17];
-		int i;
 		
-		for(i = 0; i < 17; i++)
+		for (int i = 0; i < 17; i++) {
 			locs[i] = location.clone();
+		}
 
 		locs[1].add(0, 0.5, 0);
 		locs[2].add(0, 1, 0);
@@ -253,4 +237,3 @@ public class PlayerData {
 		}
 	}
 }
-
