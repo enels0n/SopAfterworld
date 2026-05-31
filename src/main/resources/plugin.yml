@@ -1,0 +1,11 @@
+name: ${project.name}
+main: net.enelson.sopafterworld.SopAfterworld
+version: ${project.version}
+authors: [E_NeLsOn]
+depend: [SopLib, Citizens, PlaceholderAPI]
+api-version: 1.20
+commands:
+  sopafterworld:
+    aliases: [afterworld, totalafterworld]
+  portal:
+    aliases: [портал]
