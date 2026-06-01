@@ -31,7 +31,7 @@ public class PortalCommand implements CommandExecutor{
 			loc = pd.getAfterworldLocation();
 			Block block = loc.getBlock();
 			if (block.getType() != Material.LAVA && block.getType() != Material.MAGMA_BLOCK && block.getType() != Material.FIRE) {
-				pd.getPlayer().teleport(loc.add(0,1,0));
+				pd.getPlayer().teleport(loc);
 				break;
 			}
 		}

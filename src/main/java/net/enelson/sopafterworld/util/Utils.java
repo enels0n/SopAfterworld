@@ -32,6 +32,34 @@ public class Utils {
 		return block.getLocation();
 	}
 
+	public static Location findSafeStandingLocation(Location baseLocation) {
+		if (baseLocation == null || baseLocation.getWorld() == null) {
+			return baseLocation;
+		}
+
+		Location cursor = baseLocation.getBlock().getLocation();
+		for (int offset = 0; offset <= 8; offset++) {
+			Location check = cursor.clone().add(0, offset, 0);
+			Block feet = check.getBlock();
+			Block head = check.clone().add(0, 1, 0).getBlock();
+			Block below = check.clone().add(0, -1, 0).getBlock();
+
+			if (!below.getType().isSolid()) {
+				continue;
+			}
+			if (below.getType() == Material.LAVA || below.getType() == Material.MAGMA_BLOCK || below.getType() == Material.FIRE) {
+				continue;
+			}
+			if (!feet.getType().isAir() || !head.getType().isAir()) {
+				continue;
+			}
+
+			return check.add(0.5D, 0.0D, 0.5D);
+		}
+
+		return cursor.add(0.5D, 1.0D, 0.5D);
+	}
+
 	public static Integer getRadius(int deaths) {
 		int radius = 10;
 		for (Entry<Integer, Integer> point : SopAfterworld.spawns.entrySet()) {
@@ -51,7 +79,7 @@ public class Utils {
 
 			Block block = Bukkit.getWorld(SopAfterworld.afterworld).getHighestBlockAt(x, z);
 			if (block.getType() != Material.LAVA && block.getType() != Material.FIRE && block.getType() != Material.MAGMA_BLOCK) {
-				loc = block.getLocation().add(0, 1, 0);
+				loc = findSafeStandingLocation(block.getLocation().add(0, 1, 0));
 				break;
 			}
 		}

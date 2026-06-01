@@ -120,7 +120,7 @@ public class PlayerData {
 	}
 	
 	public Location getAfterworldLocation() {
-		return Utils.getLocationInCircle(this.portal[0], Utils.getRadius(this.deaths)).add(0, 1, 0);
+		return Utils.findSafeStandingLocation(Utils.getLocationInCircle(this.portal[0], Utils.getRadius(this.deaths)));
 	}
 	
 	public Long getLastOnline() {
