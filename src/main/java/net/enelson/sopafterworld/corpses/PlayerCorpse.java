@@ -36,7 +36,7 @@ public class PlayerCorpse {
         this.playerName = player.getName();
         this.inv = Bukkit.createInventory(null, 45, Utils.color("&7Труп &f" + player.getName()));
         this.inv.setContents(player.getInventory().getContents());
-        this.location = SopAfterworld.playerManager.getPlayerData(player).getLastSafeLocation();
+        this.location = player.getLocation().clone();
 
         this.createCorpseEntity();
         this.save();
@@ -55,7 +55,7 @@ public class PlayerCorpse {
             }
         }
 
-        this.location = SopAfterworld.playerManager.getPlayerData(player).getLastSafeLocation();
+        this.location = player.getLocation().clone();
         this.createCorpseEntity();
         this.save();
     }
