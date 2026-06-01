@@ -32,6 +32,8 @@ portal:
 world-generator:
   enabled: true
   seed: ""
+  worldborder-enabled: true
+  world-size: 10000
   base-height: 63
   height-variation: 6
   detail-height: 5

@@ -14,6 +14,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
+import org.bukkit.WorldBorder;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -55,6 +56,8 @@ public class SopAfterworld extends org.bukkit.plugin.java.JavaPlugin implements 
 	public static double generatorPrimaryScale;
 	public static double generatorDetailScale;
 	public static double generatorRidgeScale;
+	public static boolean generatorWorldBorderEnabled;
+	public static double generatorWorldSize;
 	public static String generatorSeed;
 	public static Map<String, Long> pendingRegenerations = new HashMap<String, Long>();
 
@@ -122,12 +125,19 @@ public class SopAfterworld extends org.bukkit.plugin.java.JavaPlugin implements 
 		generatorPrimaryScale = config.getDouble("world-generator.primary-scale", 0.0105D);
 		generatorDetailScale = config.getDouble("world-generator.detail-scale", 0.040D);
 		generatorRidgeScale = config.getDouble("world-generator.ridge-scale", 0.026D);
+		generatorWorldBorderEnabled = config.getBoolean("world-generator.worldborder-enabled", false);
+		generatorWorldSize = config.getDouble("world-generator.world-size", 10000.0D);
 
 		spawns.clear();
 		if (config.getConfigurationSection("spawns") != null) {
 			for (String key : config.getConfigurationSection("spawns").getKeys(false)) {
 				spawns.put(Integer.parseInt(key), config.getInt("spawns." + key));
 			}
+		}
+
+		World loadedAfterworld = afterworld == null ? null : Bukkit.getWorld(afterworld);
+		if (loadedAfterworld != null) {
+			applyWorldBorder(loadedAfterworld);
 		}
 	}
 
@@ -175,6 +185,7 @@ public class SopAfterworld extends org.bukkit.plugin.java.JavaPlugin implements 
 		if (createdWorld != null) {
 			Location spawn = createdWorld.getHighestBlockAt(0, 0).getLocation().add(0.5D, 1.0D, 0.5D);
 			createdWorld.setSpawnLocation(spawn.getBlockX(), spawn.getBlockY(), spawn.getBlockZ());
+			applyWorldBorder(createdWorld);
 		}
 	}
 
@@ -251,6 +262,22 @@ public class SopAfterworld extends org.bukkit.plugin.java.JavaPlugin implements 
 			return firstWorld.getSpawnLocation();
 		}
 		return new Location(null, 0, 100, 0);
+	}
+
+	private static void applyWorldBorder(World world) {
+		if (world == null) {
+			return;
+		}
+
+		WorldBorder border = world.getWorldBorder();
+		border.setCenter(0.0D, 0.0D);
+
+		double size = Math.max(16.0D, generatorWorldSize);
+		if (generatorWorldBorderEnabled) {
+			border.setSize(size);
+		} else {
+			border.setSize(60000000.0D);
+		}
 	}
 
 	private boolean deleteRecursively(File file, File root) {
