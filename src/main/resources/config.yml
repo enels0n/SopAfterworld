@@ -24,6 +24,7 @@ enabled-worlds:
   - world
 
 portal:
+  visibility-distance: 64
   minX: -10000
   minZ: -10000
   maxX: 10000

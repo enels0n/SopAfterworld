@@ -60,7 +60,7 @@ public class PlayerManager {
 						continue;
 					if(!pd.getPlayer().getWorld().equals(pd.getPortalLocation().getWorld()))
 						continue;
-					if(pd.getPlayer().getLocation().distance(pd.getPortalLocation())>100)
+					if(pd.getPlayer().getLocation().distance(pd.getPortalLocation())>SopAfterworld.portalVisibilityDistance)
 						continue;
 					for(Location l : pd.getPortalLocations())
 						pd.getPlayer().spawnParticle(Particle.REDSTONE, l, 10, 0.12, 0.12, 0.12, portalOption);

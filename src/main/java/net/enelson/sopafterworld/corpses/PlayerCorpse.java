@@ -95,6 +95,14 @@ public class PlayerCorpse {
         return corpseHandle != null ? corpseHandle.getEntityUuid() : null;
     }
 
+    public UUID getInteractionEntityUuid() {
+        return corpseHandle != null ? corpseHandle.getInteractionEntityUuid() : null;
+    }
+
+    public int getVisualEntityId() {
+        return corpseHandle != null ? corpseHandle.getVisualEntityId() : -1;
+    }
+
     public void removeCorpse() {
         if (this.corpseHandle != null) {
             this.corpseHandle.remove();
@@ -209,7 +217,7 @@ public class PlayerCorpse {
     }
 
     public boolean matchesEntity(Entity entity) {
-        UUID entityUuid = getCorpseEntityUuid();
+        UUID entityUuid = getInteractionEntityUuid();
         return entity != null && entityUuid != null && entityUuid.equals(entity.getUniqueId());
     }
 

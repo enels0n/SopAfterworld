@@ -38,26 +38,53 @@ public class Utils {
 		}
 
 		Location cursor = baseLocation.getBlock().getLocation();
-		for (int offset = 0; offset <= 8; offset++) {
-			Location check = cursor.clone().add(0, offset, 0);
-			Block feet = check.getBlock();
-			Block head = check.clone().add(0, 1, 0).getBlock();
-			Block below = check.clone().add(0, -1, 0).getBlock();
+		for (int radius = 0; radius <= 8; radius++) {
+			for (int x = -radius; x <= radius; x++) {
+				for (int z = -radius; z <= radius; z++) {
+					if (radius != 0 && Math.abs(x) != radius && Math.abs(z) != radius) {
+						continue;
+					}
 
-			if (!below.getType().isSolid()) {
-				continue;
+					Location safe = findSafeStandingLocationInColumn(cursor.clone().add(x, 0, z));
+					if (safe != null) {
+						return safe;
+					}
+				}
 			}
-			if (below.getType() == Material.LAVA || below.getType() == Material.MAGMA_BLOCK || below.getType() == Material.FIRE) {
-				continue;
-			}
-			if (!feet.getType().isAir() || !head.getType().isAir()) {
-				continue;
-			}
-
-			return check.add(0.5D, 0.0D, 0.5D);
 		}
 
 		return cursor.add(0.5D, 1.0D, 0.5D);
+	}
+
+	private static Location findSafeStandingLocationInColumn(Location columnBase) {
+		Block highest = columnBase.getWorld().getHighestBlockAt(columnBase);
+		int startY = Math.max(columnBase.getBlockY(), highest.getY() + 1);
+		for (int y = startY + 6; y >= Math.max(2, startY - 24); y--) {
+			Location check = new Location(columnBase.getWorld(), columnBase.getBlockX(), y, columnBase.getBlockZ());
+			if (isSafeStandingLocation(check)) {
+				return check.add(0.5D, 0.0D, 0.5D);
+			}
+		}
+		return null;
+	}
+
+	private static boolean isSafeStandingLocation(Location location) {
+		Block feet = location.getBlock();
+		Block head = location.clone().add(0, 1, 0).getBlock();
+		Block below = location.clone().add(0, -1, 0).getBlock();
+
+		if (!below.getType().isSolid()) {
+			return false;
+		}
+		if (isHazardous(below.getType()) || isHazardous(feet.getType()) || isHazardous(head.getType())) {
+			return false;
+		}
+		return feet.getType().isAir() && head.getType().isAir();
+	}
+
+	private static boolean isHazardous(Material material) {
+		return material == Material.LAVA || material == Material.MAGMA_BLOCK || material == Material.FIRE
+				|| material == Material.CAMPFIRE || material == Material.SOUL_CAMPFIRE;
 	}
 
 	public static Integer getRadius(int deaths) {
@@ -78,9 +105,11 @@ public class Utils {
 			int z = SopAfterworld.minZ + (int) (Math.random() * ((SopAfterworld.maxZ - SopAfterworld.minZ) + 1));
 
 			Block block = Bukkit.getWorld(SopAfterworld.afterworld).getHighestBlockAt(x, z);
-			if (block.getType() != Material.LAVA && block.getType() != Material.FIRE && block.getType() != Material.MAGMA_BLOCK) {
+			if (!isHazardous(block.getType())) {
 				loc = findSafeStandingLocation(block.getLocation().add(0, 1, 0));
-				break;
+				if (loc != null && !isHazardous(loc.clone().add(0, -1, 0).getBlock().getType())) {
+					break;
+				}
 			}
 		}
 		return loc;

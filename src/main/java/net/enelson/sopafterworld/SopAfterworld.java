@@ -5,6 +5,7 @@ import net.enelson.sopafterworld.armorstand.ASManager;
 import net.enelson.sopafterworld.command.MainCommand;
 import net.enelson.sopafterworld.command.PortalCommand;
 import net.enelson.sopafterworld.corpses.CorpseManager;
+import net.enelson.sopafterworld.corpses.PlayerCorpse;
 import net.enelson.sopafterworld.data.PlayerManager;
 import net.enelson.sopafterworld.util.Serializer;
 import net.enelson.sopafterworld.world.AfterworldChunkGenerator;
@@ -22,6 +23,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.EventExecutor;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
@@ -59,6 +61,7 @@ public class SopAfterworld extends org.bukkit.plugin.java.JavaPlugin implements 
 	public static boolean generatorWorldBorderEnabled;
 	public static double generatorWorldSize;
 	public static String generatorSeed;
+	public static double portalVisibilityDistance;
 	public static Map<String, Long> pendingRegenerations = new HashMap<String, Long>();
 
 	private final AfterworldChunkGenerator afterworldGenerator = new AfterworldChunkGenerator();
@@ -127,6 +130,7 @@ public class SopAfterworld extends org.bukkit.plugin.java.JavaPlugin implements 
 		generatorRidgeScale = config.getDouble("world-generator.ridge-scale", 0.026D);
 		generatorWorldBorderEnabled = config.getBoolean("world-generator.worldborder-enabled", false);
 		generatorWorldSize = config.getDouble("world-generator.world-size", 10000.0D);
+		portalVisibilityDistance = config.getDouble("portal.visibility-distance", 64.0D);
 
 		spawns.clear();
 		if (config.getConfigurationSection("spawns") != null) {
@@ -159,6 +163,31 @@ public class SopAfterworld extends org.bukkit.plugin.java.JavaPlugin implements 
 			}
 		} catch (Exception exception) {
 			exception.printStackTrace();
+		}
+		registerPaperCorpseUseListener(pluginManager);
+	}
+
+	private void registerPaperCorpseUseListener(PluginManager pluginManager) {
+		try {
+			final Class<?> unknownEntityEventClass = Class.forName("com.destroystokyo.paper.event.player.PlayerUseUnknownEntityEvent");
+			pluginManager.registerEvent((Class<? extends org.bukkit.event.Event>) unknownEntityEventClass, this,
+					org.bukkit.event.EventPriority.NORMAL, new EventExecutor() {
+						@Override
+						public void execute(Listener listener, org.bukkit.event.Event event) {
+							try {
+								Player player = (Player) unknownEntityEventClass.getMethod("getPlayer").invoke(event);
+								int entityId = ((Number) unknownEntityEventClass.getMethod("getEntityId").invoke(event)).intValue();
+								PlayerCorpse corpse = corpseManager.getCorpse(entityId);
+								if (corpse == null) {
+									return;
+								}
+								net.enelson.sopafterworld.listeners.CorpseInteractHandler.openCorpseInventory(player, corpse, event);
+							} catch (Throwable throwable) {
+								throwable.printStackTrace();
+							}
+						}
+					}, this, true);
+		} catch (ClassNotFoundException ignored) {
 		}
 	}
 

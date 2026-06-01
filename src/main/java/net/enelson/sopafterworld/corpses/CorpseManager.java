@@ -81,6 +81,10 @@ public class CorpseManager {
 	public PlayerCorpse getCorpse(Entity entity) {
 		return this.corpses.stream().filter(c -> c.matchesEntity(entity)).findFirst().orElse(null);
 	}
+
+	public PlayerCorpse getCorpse(int entityId) {
+		return this.corpses.stream().filter(c -> c.getVisualEntityId() == entityId).findFirst().orElse(null);
+	}
 	
 	public PlayerCorpse getCorpse(Inventory inv) {
 		return this.corpses.stream().filter(c -> c.getInv().equals(inv)).findFirst().orElse(null);
