@@ -43,10 +43,12 @@ public class SopAfterworld extends org.bukkit.plugin.java.JavaPlugin implements 
 	public static PlayerManager playerManager;
 	public static CorpseManager corpseManager;
 	public static Map<Integer, Integer> spawns;
-	public static int minX;
-	public static int maxX;
-	public static int minZ;
-	public static int maxZ;
+	public static String portalMode;
+	public static int portalRadius;
+	public static int portalMinX;
+	public static int portalMaxX;
+	public static int portalMinZ;
+	public static int portalMaxZ;
 	public static ASManager am;
 	public static TextUtils textUtils;
 	public static boolean generateAfterworld;
@@ -59,10 +61,10 @@ public class SopAfterworld extends org.bukkit.plugin.java.JavaPlugin implements 
 	public static double generatorDetailScale;
 	public static double generatorRidgeScale;
 	public static boolean generatorWorldBorderEnabled;
-	public static double generatorWorldSize;
 	public static String generatorSeed;
 	public static double portalVisibilityDistance;
 	public static Map<String, Long> pendingRegenerations = new HashMap<String, Long>();
+	public static final int WORLD_BORDER_PADDING = 200;
 
 	private final AfterworldChunkGenerator afterworldGenerator = new AfterworldChunkGenerator();
 
@@ -113,10 +115,12 @@ public class SopAfterworld extends org.bukkit.plugin.java.JavaPlugin implements 
 		config = YamlConfiguration.loadConfiguration(fileConfig);
 		afterworld = config.getString("afterworld");
 		worlds = config.getStringList("enabled-worlds");
-		minX = config.getInt("portal.minX");
-		maxX = config.getInt("portal.maxX");
-		minZ = config.getInt("portal.minZ");
-		maxZ = config.getInt("portal.maxZ");
+		portalMode = config.getString("portal.mode", "radius").trim().toLowerCase();
+		portalRadius = resolvePortalRadius(config);
+		portalMinX = config.getInt("portal.minX");
+		portalMaxX = config.getInt("portal.maxX");
+		portalMinZ = config.getInt("portal.minZ");
+		portalMaxZ = config.getInt("portal.maxZ");
 		reincarnationPoint = config.getString("default-reincarnation-point");
 		generateAfterworld = config.getBoolean("world-generator.enabled", true);
 		generatorSeed = config.getString("world-generator.seed", "");
@@ -129,7 +133,6 @@ public class SopAfterworld extends org.bukkit.plugin.java.JavaPlugin implements 
 		generatorDetailScale = config.getDouble("world-generator.detail-scale", 0.040D);
 		generatorRidgeScale = config.getDouble("world-generator.ridge-scale", 0.026D);
 		generatorWorldBorderEnabled = config.getBoolean("world-generator.worldborder-enabled", false);
-		generatorWorldSize = config.getDouble("world-generator.world-size", 10000.0D);
 		portalVisibilityDistance = config.getDouble("portal.visibility-distance", 64.0D);
 
 		spawns.clear();
@@ -301,12 +304,34 @@ public class SopAfterworld extends org.bukkit.plugin.java.JavaPlugin implements 
 		WorldBorder border = world.getWorldBorder();
 		border.setCenter(0.0D, 0.0D);
 
-		double size = Math.max(16.0D, generatorWorldSize);
+		double size = Math.max(16.0D, getConfiguredWorldBorderDiameter());
 		if (generatorWorldBorderEnabled) {
 			border.setSize(size);
 		} else {
 			border.setSize(60000000.0D);
 		}
+	}
+
+	public static double getConfiguredWorldBorderDiameter() {
+		return (Math.max(1, getEffectivePortalExtent()) + WORLD_BORDER_PADDING) * 2.0D;
+	}
+
+	public static int getEffectivePortalExtent() {
+		if ("bounds".equalsIgnoreCase(portalMode)) {
+			return Math.max(1, Math.max(Math.max(Math.abs(portalMinX), Math.abs(portalMaxX)), Math.max(Math.abs(portalMinZ), Math.abs(portalMaxZ))));
+		}
+		return Math.max(1, portalRadius);
+	}
+
+	private static int resolvePortalRadius(FileConfiguration config) {
+		if (config.contains("portal.radius")) {
+			return Math.max(1, config.getInt("portal.radius"));
+		}
+		int minX = config.getInt("portal.minX");
+		int maxX = config.getInt("portal.maxX");
+		int minZ = config.getInt("portal.minZ");
+		int maxZ = config.getInt("portal.maxZ");
+		return Math.max(1, Math.max(Math.max(Math.abs(minX), Math.abs(maxX)), Math.max(Math.abs(minZ), Math.abs(maxZ))));
 	}
 
 	private boolean deleteRecursively(File file, File root) {

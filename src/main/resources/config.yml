@@ -25,6 +25,8 @@ enabled-worlds:
 
 portal:
   visibility-distance: 64
+  mode: radius
+  radius: 10000
   minX: -10000
   minZ: -10000
   maxX: 10000
@@ -34,7 +36,6 @@ world-generator:
   enabled: true
   seed: ""
   worldborder-enabled: true
-  world-size: 10000
   base-height: 63
   height-variation: 6
   detail-height: 5

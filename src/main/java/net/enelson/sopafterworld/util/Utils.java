@@ -23,13 +23,29 @@ public class Utils {
 	}
 
 	public static Location getLocationInCircle(Location origin, Integer radius) {
-		double angle = RANDOM.nextInt(360);
-		double mineX = origin.getBlockX() + radius * Math.cos(angle);
-		double mineZ = origin.getBlockZ() + radius * Math.sin(angle);
+		double angle = RANDOM.nextDouble() * Math.PI * 2.0D;
+		double distance = Math.sqrt(RANDOM.nextDouble()) * radius;
+		double mineX = origin.getX() + distance * Math.cos(angle);
+		double mineZ = origin.getZ() + distance * Math.sin(angle);
 
 		Location location = new Location(origin.getWorld(), mineX, 0, mineZ);
 		Block block = origin.getWorld().getHighestBlockAt(location);
 		return block.getLocation();
+	}
+
+	public static Location findAfterworldSpawnLocation(Location portalLocation, Integer radius) {
+		if (portalLocation == null || portalLocation.getWorld() == null) {
+			return portalLocation;
+		}
+		for (int attempt = 0; attempt < 32; attempt++) {
+			Location candidate = getLocationInCircle(portalLocation, radius);
+			Location safe = findSafeStandingLocation(candidate);
+			if (safe != null && isInsideWorldBorder(safe)) {
+				return safe;
+			}
+		}
+		Location fallback = findSafeStandingLocation(portalLocation);
+		return isInsideWorldBorder(fallback) ? fallback : portalLocation;
 	}
 
 	public static Location findSafeStandingLocation(Location baseLocation) {
@@ -46,7 +62,7 @@ public class Utils {
 					}
 
 					Location safe = findSafeStandingLocationInColumn(cursor.clone().add(x, 0, z));
-					if (safe != null) {
+					if (safe != null && isInsideWorldBorder(safe)) {
 						return safe;
 					}
 				}
@@ -66,6 +82,25 @@ public class Utils {
 			}
 		}
 		return null;
+	}
+
+	public static boolean isInsideWorldBorder(Location location) {
+		if (location == null || location.getWorld() == null) {
+			return false;
+		}
+		if (!SopAfterworld.generatorWorldBorderEnabled) {
+			return true;
+		}
+		org.bukkit.WorldBorder border = location.getWorld().getWorldBorder();
+		if (border == null) {
+			return true;
+		}
+		double halfSize = border.getSize() / 2.0D;
+		Location center = border.getCenter();
+		return location.getX() >= center.getX() - halfSize
+				&& location.getX() <= center.getX() + halfSize
+				&& location.getZ() >= center.getZ() - halfSize
+				&& location.getZ() <= center.getZ() + halfSize;
 	}
 
 	private static boolean isSafeStandingLocation(Location location) {
@@ -100,14 +135,23 @@ public class Utils {
 
 	public static Location searchPortalPoint() {
 		Location loc = null;
-		for (int i = 0; i < 1; i = 0) {
-			int x = SopAfterworld.minX + (int) (Math.random() * ((SopAfterworld.maxX - SopAfterworld.minX) + 1));
-			int z = SopAfterworld.minZ + (int) (Math.random() * ((SopAfterworld.maxZ - SopAfterworld.minZ) + 1));
+		for (int tries = 0; tries < 256; tries++) {
+			int x;
+			int z;
+			if ("bounds".equalsIgnoreCase(SopAfterworld.portalMode)) {
+				x = SopAfterworld.portalMinX + RANDOM.nextInt((SopAfterworld.portalMaxX - SopAfterworld.portalMinX) + 1);
+				z = SopAfterworld.portalMinZ + RANDOM.nextInt((SopAfterworld.portalMaxZ - SopAfterworld.portalMinZ) + 1);
+			} else {
+				double angle = RANDOM.nextDouble() * Math.PI * 2.0D;
+				double distance = Math.sqrt(RANDOM.nextDouble()) * SopAfterworld.portalRadius;
+				x = (int) Math.round(distance * Math.cos(angle));
+				z = (int) Math.round(distance * Math.sin(angle));
+			}
 
 			Block block = Bukkit.getWorld(SopAfterworld.afterworld).getHighestBlockAt(x, z);
 			if (!isHazardous(block.getType())) {
 				loc = findSafeStandingLocation(block.getLocation().add(0, 1, 0));
-				if (loc != null && !isHazardous(loc.clone().add(0, -1, 0).getBlock().getType())) {
+				if (loc != null && isInsideWorldBorder(loc) && !isHazardous(loc.clone().add(0, -1, 0).getBlock().getType())) {
 					break;
 				}
 			}
