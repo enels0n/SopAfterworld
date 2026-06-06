@@ -34,7 +34,7 @@ public class PlayerCorpse {
         this.uuid = player.getUniqueId().toString();
         this.createTime = System.currentTimeMillis() / 1000;
         this.playerName = player.getName();
-        this.inv = Bukkit.createInventory(null, 45, Utils.color("&7Труп &f" + player.getName()));
+        this.inv = Bukkit.createInventory(null, 45, Utils.getCorpseInventoryTitle(player));
         this.inv.setContents(player.getInventory().getContents());
         this.location = player.getLocation().clone();
 
@@ -43,11 +43,15 @@ public class PlayerCorpse {
     }
 
     PlayerCorpse(Player player, List<ItemStack> drops) {
+        this(player, drops, player != null ? player.getLocation().clone() : null);
+    }
+
+    PlayerCorpse(Player player, List<ItemStack> drops, Location deathLocation) {
         this.saved = true;
         this.uuid = player.getUniqueId().toString();
         this.createTime = System.currentTimeMillis() / 1000;
         this.playerName = player.getName();
-        this.inv = Bukkit.createInventory(null, 45, Utils.color("&7Труп &f" + player.getName()));
+        this.inv = Bukkit.createInventory(null, 45, Utils.getCorpseInventoryTitle(player));
         for (int i = 0; i < Math.min(45, drops.size()); i++) {
             ItemStack item = drops.get(i);
             if (item != null) {
@@ -55,7 +59,7 @@ public class PlayerCorpse {
             }
         }
 
-        this.location = player.getLocation().clone();
+        this.location = deathLocation != null ? deathLocation.clone() : player.getLocation().clone();
         this.createCorpseEntity();
         this.save();
     }
@@ -65,7 +69,7 @@ public class PlayerCorpse {
         this.createTime = createTime;
         this.playerName = playerName;
         this.location = location;
-        this.inv = Bukkit.createInventory(null, 45, Utils.color("&7Труп &f" + this.playerName));
+        this.inv = Bukkit.createInventory(null, 45, Utils.getCorpseInventoryTitle(this.playerName));
         this.inv.setContents(inventory);
 
         this.createCorpseEntity();
@@ -226,7 +230,7 @@ public class PlayerCorpse {
             this.corpseHandle = null;
             return;
         }
-        String corpseName = Utils.color("&8Труп &f" + this.playerName);
+        String corpseName = Utils.getCorpseDisplayName(this.playerName);
         this.corpseHandle = SopLib.getInstance().getCorpseService()
                 .createCorpse(this.location, corpseName, this.playerName);
     }

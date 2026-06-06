@@ -67,10 +67,14 @@ public class CorpseManager {
 	}
 
 	public void createCorpse(Player player, List<ItemStack> drops) {
+		createCorpse(player, drops, player != null ? player.getLocation().clone() : null);
+	}
+
+	public void createCorpse(Player player, List<ItemStack> drops, Location deathLocation) {
 		if (drops == null || drops.isEmpty()) {
 			return;
 		}
-		PlayerCorpse corpse = new PlayerCorpse(player, drops);
+		PlayerCorpse corpse = new PlayerCorpse(player, drops, deathLocation);
 		this.corpses.add(corpse);
 	}
 	

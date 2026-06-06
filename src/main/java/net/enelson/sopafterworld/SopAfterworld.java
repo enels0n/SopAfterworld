@@ -27,9 +27,12 @@ import org.bukkit.plugin.EventExecutor;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class SopAfterworld extends org.bukkit.plugin.java.JavaPlugin implements Listener {
 
@@ -265,6 +268,7 @@ public class SopAfterworld extends org.bukkit.plugin.java.JavaPlugin implements 
 		}
 
 		ensureAfterworldLoaded();
+		resetAllPlayerPortals();
 		sender.sendMessage(textUtils.color(config.getString("messages.regenerate-success")));
 		return true;
 	}
@@ -294,6 +298,53 @@ public class SopAfterworld extends org.bukkit.plugin.java.JavaPlugin implements 
 			return firstWorld.getSpawnLocation();
 		}
 		return new Location(null, 0, 100, 0);
+	}
+
+	private void resetAllPlayerPortals() {
+		Set<String> onlinePlayerIds = new HashSet<String>();
+		if (playerManager != null) {
+			for (Player player : Bukkit.getOnlinePlayers()) {
+				net.enelson.sopafterworld.data.PlayerData playerData = playerManager.getPlayerData(player);
+				if (playerData == null) {
+					continue;
+				}
+				Location newPortal = Utils.searchPortalPoint();
+				if (newPortal == null) {
+					getLogger().warning("Failed to generate a new portal for online player " + player.getName() + " during afterworld regeneration.");
+					continue;
+				}
+				playerData.setPortal(newPortal);
+				onlinePlayerIds.add(playerData.getUuid());
+			}
+		}
+
+		File playersFolder = new File(getDataFolder(), "players");
+		File[] playerFiles = playersFolder.listFiles((dir, name) -> name.toLowerCase().endsWith(".yml"));
+		if (playerFiles == null) {
+			return;
+		}
+
+		for (File playerFile : playerFiles) {
+			String fileName = playerFile.getName();
+			String uuid = fileName.substring(0, fileName.length() - 4).toLowerCase();
+			if (onlinePlayerIds.contains(uuid)) {
+				continue;
+			}
+
+			Location newPortal = Utils.searchPortalPoint();
+			if (newPortal == null) {
+				getLogger().warning("Failed to generate a new portal for offline player file " + playerFile.getName() + " during afterworld regeneration.");
+				continue;
+			}
+
+			FileConfiguration playerConfig = YamlConfiguration.loadConfiguration(playerFile);
+			playerConfig.set("portal", Serializer.getSerializedLocation(Utils.createPortalLocations(newPortal)));
+			try {
+				playerConfig.save(playerFile);
+			} catch (IOException exception) {
+				getLogger().warning("Failed to save regenerated portal for " + playerFile.getName() + ": " + exception.getMessage());
+			}
+		}
 	}
 
 	private static void applyWorldBorder(World world) {

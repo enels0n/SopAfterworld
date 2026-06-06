@@ -77,6 +77,10 @@ public class PlayerData {
 	public Location getPortalLocation() {
 		return this.portal[0];
 	}
+
+	public String getUuid() {
+		return this.uuid;
+	}
 	
 	public String getName() {
 		return this.player.getDisplayName();
@@ -178,7 +182,7 @@ public class PlayerData {
 	}
 	
 	public void setPortal(Location location) {
-		this.portal = createPortal(location);
+		this.portal = Utils.createPortalLocations(location);
 		this.saveConfigs();
 	}
 	
@@ -189,33 +193,6 @@ public class PlayerData {
 	public void setLastOnline() {
 		this.lastOnline = System.currentTimeMillis() / 1000;
 		this.saveConfigs();
-	}
-	
-	private Location[] createPortal(Location location) {
-		Location locs[] = new Location[17];
-		
-		for (int i = 0; i < 17; i++) {
-			locs[i] = location.clone();
-		}
-
-		locs[1].add(0, 0.5, 0);
-		locs[2].add(0, 1, 0);
-		locs[3].add(0, 1.5, 0);
-		locs[4].add(0, 2, 0);
-		locs[5].add(0, 2.3, 0.25);
-		locs[6].add(0, 2.6, 0.75);
-		locs[7].add(0, 2.8, 1);
-		locs[8].add(0, 2.8, 1.5);
-		locs[9].add(0, 2.8, 2);
-		locs[10].add(0, 2.6, 2.3);
-		locs[11].add(0, 2.3, 2.7);
-		locs[12].add(0, 2, 3);
-		locs[13].add(0, 1.5, 3);
-		locs[14].add(0, 1, 3);
-		locs[15].add(0, 0.5, 3);
-		locs[16].add(0, 0, 3);
-		
-		return locs;
 	}
 	
 	private void saveConfigs() {
