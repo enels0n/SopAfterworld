@@ -1,6 +1,5 @@
 package net.enelson.sopafterworld.util;
 
-import me.clip.placeholderapi.PlaceholderAPI;
 import net.enelson.sopafterworld.SopAfterworld;
 import net.enelson.sopafterworld.data.PlayerData;
 import net.enelson.sopli.lib.SopLib;
@@ -22,6 +21,64 @@ public class Utils {
 		return SopAfterworld.textUtils != null ? SopAfterworld.textUtils.color(message) : message;
 	}
 
+	public static String resolvePlaceholders(Player player, String text) {
+		if (text == null) {
+			return "";
+		}
+		String resolved = text.replace("{player}", player != null ? player.getName() : "");
+		if (player != null) {
+			resolved = applyPlaceholderApi(player, resolved);
+		}
+		return resolved;
+	}
+
+	public static String resolvePlaceholders(String playerName, String text) {
+		if (text == null) {
+			return "";
+		}
+		Player player = playerName != null && !playerName.trim().isEmpty() ? Bukkit.getPlayerExact(playerName) : null;
+		String resolved = text.replace("{player}", playerName != null ? playerName : "");
+		if (player != null) {
+			resolved = applyPlaceholderApi(player, resolved);
+		}
+		return resolved;
+	}
+
+	public static String getCorpseDisplayName(Player player) {
+		String format = SopAfterworld.config.getString("corpse.name-format", "&8Труп &f{player}");
+		return color(resolvePlaceholders(player, format));
+	}
+
+	public static String getCorpseDisplayName(String playerName) {
+		String format = SopAfterworld.config.getString("corpse.name-format", "&8Труп &f{player}");
+		return color(resolvePlaceholders(playerName, format));
+	}
+
+	public static String getCorpseInventoryTitle(Player player) {
+		String format = SopAfterworld.config.getString(
+				"corpse.inventory-title-format",
+				SopAfterworld.config.getString("corpse.name-format", "&8Труп &f{player}")
+		);
+		return color(resolvePlaceholders(player, format));
+	}
+
+	public static String getCorpseInventoryTitle(String playerName) {
+		String format = SopAfterworld.config.getString(
+				"corpse.inventory-title-format",
+				SopAfterworld.config.getString("corpse.name-format", "&8Труп &f{player}")
+		);
+		return color(resolvePlaceholders(playerName, format));
+	}
+
+	public static String getCorpseInspectText(Player player, String corpsePlayerName) {
+		String format = SopAfterworld.config.getString("corpse.inspect-format", "*&eОсматривает труп {player}&f*");
+		String resolved = format.replace("{player}", corpsePlayerName != null ? corpsePlayerName : "");
+		if (player != null) {
+			resolved = applyPlaceholderApi(player, resolved);
+		}
+		return color(resolved);
+	}
+
 	public static Location getLocationInCircle(Location origin, Integer radius) {
 		double angle = RANDOM.nextDouble() * Math.PI * 2.0D;
 		double distance = Math.sqrt(RANDOM.nextDouble()) * radius;
@@ -31,6 +88,31 @@ public class Utils {
 		Location location = new Location(origin.getWorld(), mineX, 0, mineZ);
 		Block block = origin.getWorld().getHighestBlockAt(location);
 		return block.getLocation();
+	}
+
+	public static Location[] createPortalLocations(Location location) {
+		Location[] locs = new Location[17];
+		for (int i = 0; i < locs.length; i++) {
+			locs[i] = location.clone();
+		}
+
+		locs[1].add(0, 0.5, 0);
+		locs[2].add(0, 1, 0);
+		locs[3].add(0, 1.5, 0);
+		locs[4].add(0, 2, 0);
+		locs[5].add(0, 2.3, 0.25);
+		locs[6].add(0, 2.6, 0.75);
+		locs[7].add(0, 2.8, 1);
+		locs[8].add(0, 2.8, 1.5);
+		locs[9].add(0, 2.8, 2);
+		locs[10].add(0, 2.6, 2.3);
+		locs[11].add(0, 2.3, 2.7);
+		locs[12].add(0, 2, 3);
+		locs[13].add(0, 1.5, 3);
+		locs[14].add(0, 1, 3);
+		locs[15].add(0, 0.5, 3);
+		locs[16].add(0, 0, 3);
+		return locs;
 	}
 
 	public static Location findAfterworldSpawnLocation(Location portalLocation, Integer radius) {
@@ -181,10 +263,10 @@ public class Utils {
 
 	public static boolean checkRequire(Player player, String type, String input, String output) {
 		if (input != null) {
-			input = PlaceholderAPI.setPlaceholders(player, input);
+			input = applyPlaceholderApi(player, input);
 		}
 		if (output != null) {
-			output = PlaceholderAPI.setPlaceholders(player, output);
+			output = applyPlaceholderApi(player, output);
 		}
 
 		switch (type) {
@@ -216,5 +298,45 @@ public class Utils {
 		return SopLib.getInstance().getItemUtils().getNBT(item, "MMOITEMS_DISABLE_DROPING", Byte.class) != null
 				|| SopLib.getInstance().getItemUtils().getNBT(item, "MMOITEMS_DISABLE_DROPING", Integer.class) != null
 				|| SopLib.getInstance().getItemUtils().getNBT(item, "MMOITEMS_DISABLE_DROPING", String.class) != null;
+	}
+
+	private static String applyPlaceholderApi(Player player, String text) {
+		if (text == null || player == null) {
+			return text;
+		}
+		String resolved = applyKnownPlaceholderFallbacks(player, text);
+		if (!Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+			return resolved;
+		}
+		try {
+			return me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(player, resolved);
+		} catch (Throwable ignored) {
+			return resolved;
+		}
+	}
+
+	private static String applyKnownPlaceholderFallbacks(Player player, String text) {
+		String resolved = text;
+		resolved = resolved.replace("%player_name%", player.getName());
+		resolved = resolved.replace("%player_level%", String.valueOf(player.getLevel()));
+		resolved = resolved.replace("%vault_eco_balance%", resolveVaultBalance(player));
+		return resolved;
+	}
+
+	private static String resolveVaultBalance(Player player) {
+		try {
+			Class<?> economyClass = Class.forName("net.milkbowl.vault.economy.Economy");
+			org.bukkit.plugin.RegisteredServiceProvider<?> registration = Bukkit.getServicesManager().getRegistration(economyClass);
+			if (registration == null || registration.getProvider() == null) {
+				return "0";
+			}
+			Object economy = registration.getProvider();
+			Object result = economyClass.getMethod("getBalance", org.bukkit.OfflinePlayer.class).invoke(economy, player);
+			if (result instanceof Number) {
+				return String.valueOf(((Number) result).doubleValue());
+			}
+		} catch (Throwable ignored) {
+		}
+		return "0";
 	}
 }

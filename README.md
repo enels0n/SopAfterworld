@@ -10,7 +10,7 @@ SopAfterworld is a Bukkit/Spigot plugin that adds an afterworld-style death flow
 - Generator settings for seed, height, lava level, and terrain scales
 - Corpse spawning through SopLib's shared corpse service
 - Recoverable player inventory from corpses
-- Requirement checks through PlaceholderAPI and permissions
+- Requirement checks through optional PlaceholderAPI and permissions
 - Shared text and item helpers through SopLib
 - Built-in afterworld regeneration command with confirmation
 
@@ -19,7 +19,8 @@ SopAfterworld is a Bukkit/Spigot plugin that adds an afterworld-style death flow
 - Java 8+
 - Spigot/Paper 1.16.5
 - SopLib
-- PlaceholderAPI
+- PlaceholderAPI (optional)
+- Vault (optional, for built-in balance fallback)
 
 ## Commands
 

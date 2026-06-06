@@ -2,7 +2,8 @@ name: ${project.name}
 main: net.enelson.sopafterworld.SopAfterworld
 version: ${project.version}
 authors: [E_NeLsOn]
-depend: [SopLib, PlaceholderAPI]
+depend: [SopLib]
+softdepend: [PlaceholderAPI, Vault]
 api-version: 1.16
 commands:
   sopafterworld:
