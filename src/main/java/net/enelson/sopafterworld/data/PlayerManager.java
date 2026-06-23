@@ -133,6 +133,51 @@ public class PlayerManager {
 
 		return lo;
 	}
+
+	/**
+	 * Returns the player's death count (online via live data, otherwise from the
+	 * saved file), or {@code null} if the player has no data.
+	 */
+	public Integer getDeaths(String player) {
+		Player online = Bukkit.getPlayerExact(player);
+		if (online != null) {
+			PlayerData pd = getPlayerData(online);
+			if (pd != null) {
+				return pd.getDeaths();
+			}
+		}
+		File file = getFileOfflinePlayer(player);
+		if (file == null) {
+			return null;
+		}
+		return YamlConfiguration.loadConfiguration(file).getInt("death-count");
+	}
+
+	/** Sets the player's death count (online via live data, otherwise on the saved file). */
+	public boolean setDeaths(String player, int value) {
+		int clamped = Math.max(0, value);
+		Player online = Bukkit.getPlayerExact(player);
+		if (online != null) {
+			PlayerData pd = getPlayerData(online);
+			if (pd != null) {
+				pd.setDeaths(clamped);
+				return true;
+			}
+		}
+		File file = getFileOfflinePlayer(player);
+		if (file == null) {
+			return false;
+		}
+		FileConfiguration cfg = YamlConfiguration.loadConfiguration(file);
+		cfg.set("death-count", clamped);
+		cfg.set("last-decrease", System.currentTimeMillis() / 1000);
+		try {
+			cfg.save(file);
+			return true;
+		} catch (java.io.IOException exception) {
+			return false;
+		}
+	}
 	
 	private File getFileOfflinePlayer(String player) {
 		@SuppressWarnings("deprecation")

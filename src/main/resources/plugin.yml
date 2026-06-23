@@ -3,7 +3,7 @@ main: net.enelson.sopafterworld.SopAfterworld
 version: ${project.version}
 authors: [E_NeLsOn]
 depend: [SopLib]
-softdepend: [PlaceholderAPI, Vault]
+softdepend: [PlaceholderAPI, Vault, WorldEdit, WorldGuard]
 api-version: 1.16
 commands:
   sopafterworld:

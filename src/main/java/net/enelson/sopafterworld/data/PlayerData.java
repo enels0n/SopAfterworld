@@ -155,6 +155,12 @@ public class PlayerData {
 		this.lastDecrease = System.currentTimeMillis() / 1000;
 		this.saveConfigs();
 	}
+
+	public void setDeaths(int deaths) {
+		this.deaths = Math.max(0, deaths);
+		this.lastDecrease = System.currentTimeMillis() / 1000;
+		this.saveConfigs();
+	}
 	
 	public void setDead(Boolean dead) {
 		this.dead = dead;

@@ -2,6 +2,7 @@ package net.enelson.sopafterworld.listeners;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -10,6 +11,7 @@ import org.bukkit.event.Listener;
 
 import net.enelson.sopafterworld.SopAfterworld;
 import net.enelson.sopafterworld.data.PlayerData;
+import net.enelson.sopafterworld.event.AfterworldEnterEvent;
 import net.enelson.sopafterworld.util.Utils;
 
 public class PlayerRespawnEvent implements Listener {
@@ -30,6 +32,7 @@ public class PlayerRespawnEvent implements Listener {
 			Block block = loc.getBlock();
 			if (block.getType() != Material.LAVA && block.getType() != Material.MAGMA_BLOCK && block.getType() != Material.FIRE) {
 				e.setRespawnLocation(loc);
+				Bukkit.getPluginManager().callEvent(new AfterworldEnterEvent(player));
 				break;
 			}
 		}

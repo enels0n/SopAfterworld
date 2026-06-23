@@ -8,10 +8,13 @@ import net.enelson.sopafterworld.corpses.CorpseManager;
 import net.enelson.sopafterworld.corpses.PlayerCorpse;
 import net.enelson.sopafterworld.data.PlayerManager;
 import net.enelson.sopafterworld.util.Serializer;
+import net.enelson.sopafterworld.util.Utils;
+import net.enelson.sopafterworld.util.WorldGuardHook;
 import net.enelson.sopafterworld.world.AfterworldChunkGenerator;
 import net.enelson.sopli.lib.SopLib;
 import net.enelson.sopli.lib.text.TextUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
@@ -148,6 +151,7 @@ public class SopAfterworld extends org.bukkit.plugin.java.JavaPlugin implements 
 		World loadedAfterworld = afterworld == null ? null : Bukkit.getWorld(afterworld);
 		if (loadedAfterworld != null) {
 			applyWorldBorder(loadedAfterworld);
+			applyWorldSettings(loadedAfterworld);
 		}
 	}
 
@@ -221,6 +225,7 @@ public class SopAfterworld extends org.bukkit.plugin.java.JavaPlugin implements 
 			Location spawn = createdWorld.getHighestBlockAt(0, 0).getLocation().add(0.5D, 1.0D, 0.5D);
 			createdWorld.setSpawnLocation(spawn.getBlockX(), spawn.getBlockY(), spawn.getBlockZ());
 			applyWorldBorder(createdWorld);
+			applyWorldSettings(createdWorld);
 		}
 	}
 
@@ -361,6 +366,51 @@ public class SopAfterworld extends org.bukkit.plugin.java.JavaPlugin implements 
 		} else {
 			border.setSize(60000000.0D);
 		}
+	}
+
+	/** Applies configurable gamerules and (if WorldGuard is present) global region flags. */
+	private static void applyWorldSettings(World world) {
+		if (world == null) {
+			return;
+		}
+		applyGamerules(world);
+		if (config.getBoolean("world-flags.enabled", true) && WorldGuardHook.isAvailable()) {
+			WorldGuardHook.applyGlobalFlags(world,
+					config.getString("world-flags.passthrough"),
+					config.getString("world-flags.interact"),
+					config.getStringList("world-flags.deny-spawn"),
+					plugin.getLogger());
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private static void applyGamerules(World world) {
+		if (config.getConfigurationSection("gamerules") == null) {
+			return;
+		}
+		for (String key : config.getConfigurationSection("gamerules").getKeys(false)) {
+			GameRule<?> rule = resolveGameRule(key);
+			if (rule == null) {
+				plugin.getLogger().warning("Unknown gamerule in config: " + key);
+				continue;
+			}
+			if (rule.getType() == Boolean.class) {
+				world.setGameRule((GameRule<Boolean>) rule, config.getBoolean("gamerules." + key));
+			} else if (rule.getType() == Integer.class) {
+				world.setGameRule((GameRule<Integer>) rule, config.getInt("gamerules." + key));
+			}
+		}
+	}
+
+	private static GameRule<?> resolveGameRule(String key) {
+		String k = key == null ? "" : key.trim();
+		if (k.equalsIgnoreCase("show_advancement_messages") || k.equalsIgnoreCase("announceAdvancements")) {
+			return GameRule.ANNOUNCE_ADVANCEMENTS;
+		}
+		if (k.equalsIgnoreCase("show_death_messages") || k.equalsIgnoreCase("showDeathMessages")) {
+			return GameRule.SHOW_DEATH_MESSAGES;
+		}
+		return GameRule.getByName(k);
 	}
 
 	public static double getConfiguredWorldBorderDiameter() {
