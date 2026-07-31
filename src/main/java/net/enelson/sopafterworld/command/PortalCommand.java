@@ -16,26 +16,23 @@ import net.enelson.sopafterworld.util.Utils;
 public class PortalCommand implements CommandExecutor{
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		if(!(sender instanceof Player))
-			return false;
+		if (!(sender instanceof Player))
+			return true;
 		
 		PlayerData pd = SopAfterworld.playerManager.getPlayerData((Player)sender);
-		if(pd == null || !pd.isDead())
-			return false;
+		if (pd == null || !pd.isDead())
+			return true;
 
 		pd.setPortal(Utils.searchPortalPoint());
-		
-		int i = 0;
-		Location loc;
-		while(i<1) {
-			loc = pd.getAfterworldLocation();
+
+		Location loc = pd.getAfterworldLocation();
+		if (loc != null) {
 			Block block = loc.getBlock();
 			if (block.getType() != Material.LAVA && block.getType() != Material.MAGMA_BLOCK && block.getType() != Material.FIRE) {
 				pd.getPlayer().teleport(loc);
-				break;
 			}
 		}
-		return false;
+		return true;
 	}
 }
 

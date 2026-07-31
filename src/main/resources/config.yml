@@ -72,25 +72,19 @@ world-generator:
   detail-scale: 0.040
   ridge-scale: 0.026
 
-spawns: # min-death: radius
-  0: 50
-  1: 100
-  2: 144
-  3: 213
-  4: 300
-  5: 402
-  6: 514
-  7: 637
-  8: 768
-  9: 906
-  10: 1052
-  11: 1203
-  12: 1359
-  13: 1521
-  14: 1687
-  15: 1858
-  16: 2032
-  17: 2211
-  18: 2393
-  19: 2578
-  20: 2767
+spawn-distance:
+  # The closest rule with key <= deaths is used.
+  # A number means fixed radius until the next key.
+  # A string means a formula using variable: deaths
+  # Functions: sin, cos, tan, asin, acos, atan, sqrt, abs, floor, ceil,
+  # round, log, log10, exp, min, max, pow, clamp
+  # Constants: pi, e
+  # Trigonometric functions use radians.
+  deaths:
+    0: 5
+    1: "round(50 + pow((deaths - 1) / 99, 1.35) * 2450)"
+#    10: 111
+#    20: "round(900 + log(deaths - 18) * 550)"
+#    50: 555 # 50-59
+#    60: 666 # 60-99
+#    100: "round(5000 + pow((deaths - 100) / 900, 1.5) * 5000)" # 100+

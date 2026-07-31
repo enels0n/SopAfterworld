@@ -20,7 +20,6 @@ public class PlayerDeathEvent implements Listener {
 			for(ItemStack item : e.getDrops()) {
 				if (Utils.checkNotDropping(item)) {
 					item.setAmount(0);
-					return;
 				}
 			}
 			return;

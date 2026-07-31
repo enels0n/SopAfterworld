@@ -25,7 +25,7 @@ public class LastLocationList {
 		Location[] locationsBack = new Location[locationsCount];
 		int o = 0;
 		for(int i = locationsCount; i!=0;) {
-			locationsBack[o] = this.locations[--i];
+			locationsBack[o++] = this.locations[--i];
 		}
 		return locationsBack;
 	}

@@ -24,18 +24,15 @@ public class PlayerRespawnEvent implements Listener {
 			return;
 
 		player.sendMessage(Utils.color(SopAfterworld.config.getString("messages.death")));
-		
-		int i = 0;
-		Location loc;
-		while(i<1) {
-			loc = pd.getAfterworldLocation();
+
+		Location loc = pd.getAfterworldLocation();
+		if (loc != null) {
 			Block block = loc.getBlock();
 			if (block.getType() != Material.LAVA && block.getType() != Material.MAGMA_BLOCK && block.getType() != Material.FIRE) {
 				e.setRespawnLocation(loc);
-				Bukkit.getPluginManager().callEvent(new AfterworldEnterEvent(player));
-				break;
 			}
 		}
+		Bukkit.getPluginManager().callEvent(new AfterworldEnterEvent(player));
 		
 		SopAfterworld.plugin.getServer().getScheduler().runTaskLater(SopAfterworld.plugin, new Runnable() {
 			public void run() {

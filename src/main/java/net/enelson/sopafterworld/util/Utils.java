@@ -11,7 +11,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
-import java.util.Map.Entry;
 import java.util.Random;
 
 public class Utils {
@@ -205,14 +204,37 @@ public class Utils {
 	}
 
 	public static Integer getRadius(int deaths) {
-		int radius = 10;
-		for (Entry<Integer, Integer> point : SopAfterworld.spawns.entrySet()) {
-			if (point.getKey() > deaths) {
-				break;
-			}
-			radius = point.getValue();
+		java.util.Map.Entry<Integer, String> rule = SopAfterworld.spawnDistanceRules.floorEntry(Integer.valueOf(deaths));
+		if (rule == null) {
+			rule = SopAfterworld.spawnDistanceRules.firstEntry();
 		}
-		return radius;
+		if (rule == null) {
+			return Integer.valueOf(Math.max(5, deaths * 25));
+		}
+		return Integer.valueOf(evaluateRadiusRule(rule.getValue(), deaths));
+	}
+
+	private static int evaluateRadiusRule(String ruleValue, int deaths) {
+		if (ruleValue == null || ruleValue.trim().isEmpty()) {
+			return Math.max(5, deaths * 25);
+		}
+
+		String trimmed = ruleValue.trim();
+		try {
+			return Math.max(0, Integer.parseInt(trimmed));
+		} catch (NumberFormatException ignored) {
+		}
+
+		try {
+			double result = MathExpression.evaluate(trimmed, deaths);
+			if (Double.isNaN(result) || Double.isInfinite(result)) {
+				throw new IllegalArgumentException("Formula result is not finite");
+			}
+			return Math.max(0, (int) Math.round(result));
+		} catch (Exception exception) {
+			SopAfterworld.plugin.getLogger().warning("Invalid spawn-distance rule '" + trimmed + "': " + exception.getMessage());
+			return Math.max(5, deaths * 25);
+		}
 	}
 
 	public static Location searchPortalPoint() {

@@ -35,7 +35,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.Set;
+import java.util.TreeMap;
 
 public class SopAfterworld extends org.bukkit.plugin.java.JavaPlugin implements Listener {
 
@@ -48,7 +50,7 @@ public class SopAfterworld extends org.bukkit.plugin.java.JavaPlugin implements 
 	public static List<String> worlds;
 	public static PlayerManager playerManager;
 	public static CorpseManager corpseManager;
-	public static Map<Integer, Integer> spawns;
+	public static NavigableMap<Integer, String> spawnDistanceRules;
 	public static String portalMode;
 	public static int portalRadius;
 	public static int portalMinX;
@@ -88,7 +90,7 @@ public class SopAfterworld extends org.bukkit.plugin.java.JavaPlugin implements 
 		createDataFolder("players");
 		createDataFolder("corpses");
 
-		spawns = new HashMap<Integer, Integer>();
+		spawnDistanceRules = new TreeMap<Integer, String>();
 		reloadRuntimeConfig();
 		ensureAfterworldLoaded();
 
@@ -141,12 +143,7 @@ public class SopAfterworld extends org.bukkit.plugin.java.JavaPlugin implements 
 		generatorWorldBorderEnabled = config.getBoolean("world-generator.worldborder-enabled", false);
 		portalVisibilityDistance = config.getDouble("portal.visibility-distance", 64.0D);
 
-		spawns.clear();
-		if (config.getConfigurationSection("spawns") != null) {
-			for (String key : config.getConfigurationSection("spawns").getKeys(false)) {
-				spawns.put(Integer.parseInt(key), config.getInt("spawns." + key));
-			}
-		}
+		loadSpawnDistanceRules();
 
 		World loadedAfterworld = afterworld == null ? null : Bukkit.getWorld(afterworld);
 		if (loadedAfterworld != null) {
@@ -159,6 +156,39 @@ public class SopAfterworld extends org.bukkit.plugin.java.JavaPlugin implements 
 		File folder = new File(getDataFolder(), name);
 		if (!folder.exists()) {
 			folder.mkdir();
+		}
+	}
+
+	private static void loadSpawnDistanceRules() {
+		spawnDistanceRules.clear();
+
+		String rulesPath = config.getConfigurationSection("spawn-distance.deaths") != null
+				? "spawn-distance.deaths"
+				: (config.getConfigurationSection("spawn-distance.list") != null ? "spawn-distance.list" : "spawns");
+
+		if (config.getConfigurationSection(rulesPath) == null) {
+			spawnDistanceRules.put(Integer.valueOf(0), "5");
+			spawnDistanceRules.put(Integer.valueOf(1), "round(50 + pow((deaths - 1) / 99, 1.35) * 2450)");
+			return;
+		}
+
+		for (String key : config.getConfigurationSection(rulesPath).getKeys(false)) {
+			try {
+				int deaths = Integer.parseInt(key);
+				Object rawValue = config.get(rulesPath + "." + key);
+				if (rawValue == null) {
+					continue;
+				}
+				String value = String.valueOf(rawValue).trim();
+				if (!value.isEmpty()) {
+					spawnDistanceRules.put(Integer.valueOf(deaths), value);
+				}
+			} catch (NumberFormatException ignored) {
+			}
+		}
+
+		if (!spawnDistanceRules.containsKey(Integer.valueOf(0))) {
+			spawnDistanceRules.put(Integer.valueOf(0), "5");
 		}
 	}
 

@@ -35,7 +35,7 @@ public class PlayerManager {
 			players.add(new PlayerData(p));
 		}
 		
-		setLastSafeLocationTaskId = plugin.getServer().getScheduler().scheduleAsyncRepeatingTask(plugin, new Runnable() {
+		setLastSafeLocationTaskId = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
 			public void run() {
 				for (PlayerData pd : players) {
 					if(pd.isDead())
@@ -53,7 +53,7 @@ public class PlayerManager {
 			}
 		}, 2 * 20L, 2 * 20L);
 		
-		createPortalTaskId = plugin.getServer().getScheduler().scheduleAsyncRepeatingTask(plugin, new Runnable() {
+		createPortalTaskId = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
 			public void run() {
 				for (PlayerData pd : players) {
 					if(!pd.isDead())
@@ -68,7 +68,7 @@ public class PlayerManager {
 			}
 		}, 1 * 15L, 1 * 15L);
 		
-		createNavigatorTaskId = plugin.getServer().getScheduler().scheduleAsyncRepeatingTask(plugin, new Runnable() {
+		createNavigatorTaskId = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
 			public void run() {
 				for (PlayerData pd : players) {
 					if(!pd.isDead())
@@ -112,6 +112,9 @@ public class PlayerManager {
 	
 	public void removePlayer(Player player) {
 		PlayerData pd = this.getPlayerData(player);
+		if (pd == null) {
+			return;
+		}
 		pd.setLastOnline();
 		players.remove(pd);
 	}
