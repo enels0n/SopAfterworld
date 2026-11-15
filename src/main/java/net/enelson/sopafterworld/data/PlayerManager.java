@@ -21,6 +21,8 @@ import net.enelson.sopafterworld.util.Utils;
 
 public class PlayerManager {
 
+	private static final Particle DUST_PARTICLE = net.enelson.sopli.lib.compat.Particles.dust();
+
 	private Particle.DustOptions portalOption = new Particle.DustOptions(Color.TEAL, 2f);
 	private Particle.DustOptions navigatorOption = new Particle.DustOptions(Color.WHITE, 2f);
 
@@ -63,7 +65,7 @@ public class PlayerManager {
 					if(pd.getPlayer().getLocation().distance(pd.getPortalLocation())>SopAfterworld.portalVisibilityDistance)
 						continue;
 					for(Location l : pd.getPortalLocations())
-						pd.getPlayer().spawnParticle(Particle.REDSTONE, l, 10, 0.12, 0.12, 0.12, portalOption);
+						pd.getPlayer().spawnParticle(DUST_PARTICLE, l, 10, 0.12, 0.12, 0.12, portalOption);
 				}
 			}
 		}, 1 * 15L, 1 * 15L);
@@ -82,7 +84,7 @@ public class PlayerManager {
 					}
 					
 					Location loc = Utils.getNavigatorLocation(pd.getPlayer());
-					pd.getPlayer().spawnParticle(Particle.REDSTONE, loc, 10, 0.12, 0.12, 0.12, navigatorOption);
+					pd.getPlayer().spawnParticle(DUST_PARTICLE, loc, 10, 0.12, 0.12, 0.12, navigatorOption);
 				}
 			}
 		}, 1 * 15L, 1 * 15L);

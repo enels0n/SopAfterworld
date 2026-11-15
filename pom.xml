@@ -5,7 +5,7 @@
 
   <groupId>net.enelson.sopafterworld</groupId>
   <artifactId>SopAfterworld</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   <name>SopAfterworld</name>
 
   <properties>
@@ -56,7 +56,7 @@
     <dependency>
       <groupId>net.enelson.sopli.lib</groupId>
       <artifactId>soplib-core</artifactId>
-      <version>1.0.1</version>
+      <version>1.2.0</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
